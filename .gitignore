@@ -1,0 +1,6 @@
+data/raw/*.csv
+data/processed/
+.Rhistory
+.RData
+.Rproj.user/
+__pycache__/
