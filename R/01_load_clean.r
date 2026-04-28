@@ -8,7 +8,7 @@ raw <- read_csv("data/raw/diabetic_data.csv", na = c("", "NA", "?")) |>
   clean_names()
 
 rawlines <- readr::read_lines("data/raw/IDS_mapping.csv")
-# boundary <- which(rawlines == ",") # had to split the csv into three parts, it was separated by an empty line, which would be a "," in a csv
+# which(rawlines == ",") # had to split the csv into three parts, it was separated by an empty line, which would be a "," in a csv
 admission_type <- readr::read_csv(I(rawlines[1:9]))
 discharge_disposition <- readr::read_csv(I(rawlines[11:41]))
 admission_source <- readr::read_csv(I(rawlines[43:68]))
@@ -107,11 +107,11 @@ clean <- clean |>
 clean <- clean |>
   mutate(
     medical_specialty = replace_na(medical_specialty, "Unknown"),
-    payer_code        = replace_na(payer_code,        "Unknown"),
-    race              = replace_na(race,              "Unknown"),
-    diag_1            = replace_na(diag_1,            "Missing"),
-    diag_2            = replace_na(diag_2,            "Missing"),
-    diag_3            = replace_na(diag_3,            "Missing")
+    payer_code        = replace_na(payer_code, "Unknown"),
+    race              = replace_na(race, "Unknown"),
+    diag_1            = replace_na(diag_1, "Missing"),
+    diag_2            = replace_na(diag_2, "Missing"),
+    diag_3            = replace_na(diag_3, "Missing")
   )
 
 # we are done

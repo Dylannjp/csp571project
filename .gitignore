@@ -5,3 +5,6 @@ data/processed/
 .Rproj.user/
 *.Rproj
 __pycache__/
+04_models.r
+05_evaluate.r
+Requirements.md
