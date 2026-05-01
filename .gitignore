@@ -2,6 +2,7 @@ data/raw/*
 data/processed/
 .Rhistory
 .RData
+.RDataTmp
 .Rproj.user/
 *.Rproj
 __pycache__/
