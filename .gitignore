@@ -6,3 +6,4 @@ data/processed/
 *.Rproj
 __pycache__/
 Requirements.md
+models/
