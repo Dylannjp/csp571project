@@ -5,7 +5,7 @@ set.seed(571)  # reproducibility
 
 clean <- read_rds("data/processed/cleaned.rds")
 
-# Grouping ICD9 diagnosis using a python script
+# grouping ICD9 diagnosis using a python script
 # following the paper mentioned in the dataset
 
 all_codes <- c(clean$diag_1, clean$diag_2, clean$diag_3) |>
@@ -33,17 +33,18 @@ featured <- clean |>
     diag_3 = replace_na(diag_3, "Missing")
   )
 
-# Grouping rare classes into a single "Other" class
+# grouping rare classes into a single "Other" class
 
 featured <- featured |>
   mutate(
     admission_type_id        = fct_lump_min(admission_type_id,        min = 50, other_level = "Other"),
     admission_source_id      = fct_lump_min(admission_source_id,      min = 50, other_level = "Other"),
     discharge_disposition_id = fct_lump_min(discharge_disposition_id, min = 50, other_level = "Other"),
-    medical_specialty        = fct_lump_min(medical_specialty,        min = 50, other_level = "Other")
+    medical_specialty        = fct_lump_min(medical_specialty,        min = 50, other_level = "Other"),
+    payer_code               = fct_lump_min(payer_code,               min = 50, other_level = "Other")
   )
 
-# Turn low non-no prescriptions into a binary predictor
+# turn low non-no prescriptions into a binary predictor
 
 featured <- featured |>
   mutate(
@@ -52,9 +53,8 @@ featured <- featured |>
     repaglinide         = if_else(repaglinide         == "No", "No", "Yes")
   )
 
-# Creating new features using the medications 
+# creating new features using the medications 
 # num_meds: count of diabetes meds prescribed
-# num_meds_changed: count of meds with Up/Down adjustments (shows unstable dosage, only on non binarized predictors)
 
 med_cols <- c("metformin", "repaglinide", "nateglinide", "glimepiride",
               "glipizide", "glyburide", "pioglitazone", "rosiglitazone",
@@ -69,7 +69,7 @@ featured <- featured |>
     num_meds_changed = rowSums(across(all_of(change_cols), ~ . %in% c("Up", "Down")))
   )
 
-# Factorize columns that need it
+# factorize columns that need it
 
 age_levels <- c("[0-10)", "[10-20)", "[20-30)", "[30-40)", "[40-50)",
                 "[50-60)", "[60-70)", "[70-80)", "[80-90)", "[90-100)")
@@ -81,13 +81,12 @@ featured <- featured |>
     age            = factor(age,           levels = age_levels, ordered = TRUE),
     a1cresult      = factor(a1cresult,     levels = a1c_levels, ordered = TRUE),
     max_glu_serum  = factor(max_glu_serum, levels = glu_levels, ordered = TRUE),
-    # Target as factor with "0" as reference level
     readmitted_30  = factor(readmitted_30, levels = c(0, 1))
   ) |>
-  # Convert all remaining character columns to (unordered) factors
+  # convert all remaining character columns to factors
   mutate(across(where(is.character), as.factor))
 
-# Split 80/20, preserve the target positive rate with stratification
+# split 80/20, preserve the target positive rate with stratification
 
 split_obj <- initial_split(featured, prop = 0.8, strata = readmitted_30)
 train <- training(split_obj)
@@ -98,7 +97,7 @@ write_rds(train, "data/processed/train.rds")
 write_rds(test,  "data/processed/test.rds")
 
 
-# Summary
+# summary
 cat("Featured rows:   ", nrow(featured),      "| cols:", ncol(featured), "\n")
 cat("Train rows:      ", nrow(train),         "| positive rate:", round(mean(train$readmitted_30 == 1), 4), "\n")
 cat("Test rows:       ", nrow(test),          "| positive rate:", round(mean(test$readmitted_30  == 1), 4), "\n")

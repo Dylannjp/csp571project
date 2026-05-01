@@ -109,6 +109,7 @@ clean <- clean |>
     medical_specialty = replace_na(medical_specialty, "Unknown"),
     payer_code        = replace_na(payer_code, "Unknown"),
     race              = replace_na(race, "Unknown"),
+    gender            = if_else(gender %in% c("Female", "Male"), gender, "Unknown"),
     diag_1            = replace_na(diag_1, "Missing"),
     diag_2            = replace_na(diag_2, "Missing"),
     diag_3            = replace_na(diag_3, "Missing")

@@ -1,7 +1,7 @@
 library(tidyverse)
 library(scales)
 
-clean <- read_rds("data/processed/cleaned.rds")
+clean <- read_rds("data/processed/cleaned_last.rds")
 
 theme_report <- theme_minimal(base_size = 11) +
   theme(
@@ -141,7 +141,6 @@ save_fig(p6, "06_length_of_stay.png")
 
 # Plot 7: Readmission rate by gender
 p7 <- clean |>
-  filter(gender %in% c("Female", "Male")) |>
   group_by(gender) |>
   summarise(n = n(), readmit_rate = mean(readmitted_30), .groups = "drop") |>
   ggplot(aes(x = gender, y = readmit_rate)) +
@@ -154,7 +153,7 @@ p7 <- clean |>
        x = NULL, y = "30-day readmission rate") +
   theme_report
 
-save_fig(p7, "07_readmit_by_gender.png", width = 5, height = 4)
+save_fig(p7, "07_readmit_by_gender.png", width = 6, height = 4)
 
 
 # Plot 8: Readmission rate by race
@@ -236,6 +235,50 @@ p11 <- clean |>
 
 save_fig(p11, "11_readmit_by_specialty.png", width = 8, height = 5)
 
+
+
+# Plot 12: Readmission rate by prior emergency visits
+p12 <- clean |>
+  mutate(
+    emergency_group = case_when(
+      number_emergency == 0 ~ "0",
+      number_emergency == 1 ~ "1",
+      number_emergency == 2 ~ "2",
+      number_emergency == 3 ~ "3",
+      number_emergency >= 4 ~ "4+"
+    ),
+    emergency_group = factor(emergency_group, levels = c("0", "1", "2", "3", "4+"))
+  ) |>
+  group_by(emergency_group) |>
+  summarise(n = n(), readmit_rate = mean(readmitted_30), .groups = "drop") |>
+  ggplot(aes(x = emergency_group, y = readmit_rate)) +
+  geom_col(fill = "#6b8fa3") +
+  geom_hline(yintercept = baseline_rate, linetype = "dashed", color = "grey40") +
+  geom_text(aes(label = paste0("n=", comma(n))),
+            vjust = -0.4, size = 2.8, color = "grey40") +
+  scale_y_continuous(labels = percent, expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Readmission rate by prior emergency visits (past year)",
+       x = "Prior emergency visits", y = "30-day readmission rate") +
+  theme_report
+
+save_fig(p12, "12_readmit_by_emergency.png")
+
+
+# Plot 13: Readmission rate by number of diagnoses
+p13 <- clean |>
+  group_by(number_diagnoses) |>
+  summarise(n = n(), readmit_rate = mean(readmitted_30), .groups = "drop") |>
+  ggplot(aes(x = factor(number_diagnoses), y = readmit_rate)) +
+  geom_col(fill = "#6b8fa3") +
+  geom_hline(yintercept = baseline_rate, linetype = "dashed", color = "grey40") +
+  geom_text(aes(label = paste0("n=", comma(n))),
+            vjust = -0.4, size = 2.8, color = "grey40") +
+  scale_y_continuous(labels = percent, expand = expansion(mult = c(0, 0.15))) +
+  labs(title = "Readmission rate by number of diagnoses recorded",
+       x = "Number of diagnoses", y = "30-day readmission rate") +
+  theme_report
+
+save_fig(p13, "13_readmit_by_diagnoses.png")
 
 
 # Summary
