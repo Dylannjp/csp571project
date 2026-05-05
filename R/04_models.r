@@ -81,21 +81,16 @@ xgb_params <- list(
   colsample_bytree = 0.8
 )
 
-# use a held-out val split (not the test set) to find best nrounds
-set.seed(42)
-val_idx    <- sample(nrow(x_train), floor(0.15 * nrow(x_train)))
-dtrain_sub <- xgb.DMatrix(data = x_train[-val_idx, ], label = y_train[-val_idx])
-dval       <- xgb.DMatrix(data = x_train[val_idx,  ], label = y_train[val_idx])
-
-xgb_search <- xgb.train(
+# use 5-fold CV on training data to find best nrounds (avoids using test set)
+xgb_cv <- xgb.cv(
   params                = xgb_params,
-  data                  = dtrain_sub,
+  data                  = dtrain,
   nrounds               = 500,
-  evals                 = list(train = dtrain_sub, val = dval),
+  nfold                 = 5,
   early_stopping_rounds = 20,
   verbose               = 0
 )
-best_nrounds <- xgb_search$best_iteration
+best_nrounds <- which.max(xgb_cv$evaluation_log$test_auc_mean)
 
 # retrain on full training set with the found nrounds
 xgb_fit <- xgb.train(
