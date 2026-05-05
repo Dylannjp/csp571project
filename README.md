@@ -45,19 +45,6 @@ admissions: `n_prior_encounters`, `prior_readmitted_30`, and `prior_avg_los`.
 - `R/03b_features_alt.r` — first-encounter variant with three additional
   engineered features (used by `R/06_compare_features.r`)
 
-## Reproduce
-```r
-setwd("csp571project")
-source("R/01_load_clean.r")         # cleaned.rds (also needed for ICD-9 step)
-source("R/01b_load_clean_last.r")   # cleaned_last.rds
-source("R/02_eda.r")                # EDA figures
-source("R/03_features.r")           # ICD-9 mapping + train.rds / test.rds
-source("R/03c_features_last.r")     # train_last.rds / test_last.rds
-source("R/04_models.r")             # train and save all models
-source("R/05_evaluate.r")           # evaluation figures and metrics
-```
-
-Requires Python 3 on `PATH` for the ICD-9 grouping step in `R/03_features.r`.
 
 ## Dependencies
 R (≥ 4.2): tidyverse, janitor, rsample, ranger, xgboost, pROC, PRROC, glmnet, scales
